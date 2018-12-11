@@ -150,7 +150,7 @@ def is_safe(p, coords):
     return sum(abs(x - x0) + abs(y - y0) for (x, y) in coords) < 10000
 
 def count_safe_at_distance(p, r, coords):
-    return sum(is_safe(q, coords) for q in square_edge(p, r))
+    return sum(is_safe(q, coords) for q in set(square_edge(p, r)))
 
 def count_safe(coords):
     g = integral_centroid(coords)
