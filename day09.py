@@ -19,7 +19,7 @@ class Marble:
             current = current.prev
         current.prev.next = current.next
         current.next.prev = current.prev
-        print(f'removed {current.points}')
+        # print(f'removed {current.points}')
         return current
 
 def marble_game(n_players=N_PLAYERS, n_marbles=N_MARBLES):
