@@ -1,5 +1,15 @@
-from collections import deque
+from collections import deque, Counter
+from functools import total_ordering
 
+TEST_INPUT =r"""
+/>-<\  
+|   |  
+| /<+-\
+| | | v
+\>+</ |
+  |   ^
+  \<->/
+"""
 
 def _left(i, j):
   return j, -i
@@ -35,6 +45,7 @@ BOLD_RED =  "\x1B[1m\x1B[31m{}\x1B[30m\x1B[0m"
 CLEAR_SCREEN = "\x1B[3J\x1B[H"
 SAVE_CURSOR = "\x1B7"
 RESTORE_CURSOR = "\x1B8"
+@total_ordering
 class Cart:
   
   def __init__(self, x, y, symbol):
@@ -66,6 +77,15 @@ class Cart:
   def __str__(self):
     return BOLD_GREEN.format(SPEED_TO_SYMBOL[self.v])
 
+  def __eq__(self, other):
+    return (self.x, self.y) == (other.x, other.y)
+
+  def __lt__(self, other):
+    return (self.y, self.x) < (other.y, other.x)
+
+  def __hash__(self):
+    return hash((self.x, self.y))
+
 INPUT_FILE = 'data/day13.txt'
 
 def parse_input(fileobj):
@@ -94,10 +114,18 @@ def run_until_collision(carts, track):
   while not collision:
     for c in carts:
       c.move(track)
-    carts = sorted(carts, key=lambda c: (c.y, c.x))
+    carts = sorted(carts)
     collision = detect_collision(carts)
   return collision
-
+import pdb
+def run_until_last_collision(carts, track):
+  pdb.set_trace()
+  while len(carts) > 1:
+    collision = run_until_collision(carts, track)
+    c = Counter(carts)
+    carts = sorted(cart for cart in carts if c[cart] == 1)
+  last = carts.pop()
+  return (last.x, last.y)
 
 def snapshot(carts, tracks):
   grid = [t[:] for t in tracks]
@@ -128,11 +156,17 @@ def step_1(filename=INPUT_FILE):
   with open(filename) as f:
     carts, track = parse_input(f)
     return run_until_collision(carts, track)
-  
+
+
+def step_2(filename=INPUT_FILE):
+  with open(filename) as f:
+    carts, track = parse_input(f)
+    return run_until_last_collision(carts, track)
+
+
 if __name__ == '__main__':
   from io import StringIO
-  from test_day13 import TEST_INPUT
-  run_animation(*parse_input(StringIO(TEST_INPUT)))
+  print(f'{step_2()}')
   
   
         
