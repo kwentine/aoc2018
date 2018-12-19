@@ -110,16 +110,15 @@ def detect_collision(carts):
   return None
 
 def run_until_collision(carts, track):
-  collision = detect_collision(carts)
+  collision = False
   while not collision:
     for c in carts:
       c.move(track)
     carts = sorted(carts)
     collision = detect_collision(carts)
   return collision
-import pdb
+
 def run_until_last_collision(carts, track):
-  pdb.set_trace()
   while len(carts) > 1:
     collision = run_until_collision(carts, track)
     c = Counter(carts)
