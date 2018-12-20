@@ -1,15 +1,6 @@
 from collections import deque, Counter
 from functools import total_ordering
 
-TEST_INPUT =r"""
-/>-<\  
-|   |  
-| /<+-\
-| | | v
-\>+</ |
-  |   ^
-  \<->/
-"""
 
 def _left(i, j):
   return j, -i
@@ -112,19 +103,27 @@ def detect_collision(carts):
 def run_until_collision(carts, track):
   collision = False
   while not collision:
+    carts = sorted(carts)
     for c in carts:
       c.move(track)
-    carts = sorted(carts)
-    collision = detect_collision(carts)
+      collision = detect_collision(carts)
+      if collision:
+        break
   return collision
 
 def run_until_last_collision(carts, track):
   while len(carts) > 1:
-    collision = run_until_collision(carts, track)
-    c = Counter(carts)
-    carts = sorted(cart for cart in carts if c[cart] == 1)
-  last = carts.pop()
-  return (last.x, last.y)
+    collided = []
+    for c in carts:
+      if c in collided: continue
+      c.move(track)
+      for x in carts:
+        if x not in collided and x is not c and x == c:
+          collided.append(x)
+          collided.append(c)
+    carts = sorted(c for c in carts if not c in collided)
+  survivor = carts[0]
+  return (survivor.x, survivor.y)
 
 def snapshot(carts, tracks):
   grid = [t[:] for t in tracks]
