@@ -1,4 +1,6 @@
 from collections import deque
+from array import array
+
 def digits(n):
     r = n % 10
     q = n // 10
@@ -10,23 +12,51 @@ def digits(n):
         n = n // 10
     return list(d)
 
+def match(patt, board, start):
+    patt_len = len(patt)
+    max_len = len(board) - patt_len
+    for idx in range(start, max_len + 1):
+        for i in range(len(patt)):
+            if patt[i] != board[idx + i]: break
+        else:
+            return idx
+    return -1
+
 def board_until(n):
     board = [3, 7]
-    board_len = 2
     i = 0
     j = 1
-    history = [(i, j, board_len)]
-    #import pdb; pdb.set_trace()
+    history = [(0, 1, 2)]
     while len(board) < n:
-        b_i = board[i]
-        b_j = board[j]
-        d = digits(b_i + b_j)
-        board.extend(d)
-        board_len += len(d)
-        i = (i + b_i + 1) % board_len
-        j = (j + b_j + 1) % board_len
-        history.append((i, j, board_len))
+        i, j = board_step(i, j, board)
+        history.append((i, j, len(board)))
     return history, board
+
+def board_extend(i, j, board):
+    b_i = board[i]
+    b_j = board[j]
+    d = digits(b_i + b_j)
+    board.extend(d)
+    l = len(board)
+    i = (i + b_i + 1) % l
+    j = (j + b_j + 1) % l
+    return (i, j)
+
+def board_until_patt(patt):
+    patt = array('B', [int(i) for i in patt])
+    board = array('B', [3, 7])
+    i = 0
+    j = 1
+    match_idx = -1
+    l = len(patt)
+    while match_idx < 0:
+        i, j = board_extend(i, j, board)
+        if board[-l:] == patt:
+            match_idx = len(board) - l
+        elif board[-l - 1: -1] == patt:
+            match_idx = len(board) - l - 1
+    return match_idx
+    
 
 def board_lines(history, board):
     lines = []
